@@ -1,0 +1,841 @@
+{
+  "info": {
+    "name": "City Complaint & Service Platform API",
+    "_postman_id": "b7a6-city-complaint-0001-000000000000",
+    "description": "Complete collection for the City Complaint & Service Platform backend.\n\nWorkflow: run **Auth → Login (Admin)** or **Login (Citizen)** first — the test script stores the JWT in `{{token}}`. Most create requests store the new id in a collection variable (categoryId, serviceId, complaintId, serviceRequestId, reviewId, agentId, sessionId, paymentId) so later requests chain automatically.\n\nSuccess responses are `{ success, message, data }` (+ optional `meta`); errors are `{ success, message, errors }`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "agentId", "value": "" },
+    { "key": "categoryId", "value": "" },
+    { "key": "serviceId", "value": "" },
+    { "key": "complaintId", "value": "" },
+    { "key": "serviceRequestId", "value": "" },
+    { "key": "paymentId", "value": "" },
+    { "key": "sessionId", "value": "" },
+    { "key": "reviewId", "value": "" },
+    { "key": "notificationId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Citizen",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.token) pm.collectionVariables.set('token', d.token);",
+                  "if (d && d.user) pm.collectionVariables.set('userId', d.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rakib Hasan\",\n  \"email\": \"newcitizen@example.com\",\n  \"password\": \"Citizen@1234\",\n  \"phone\": \"+8801700000009\",\n  \"ward\": \"Ward 5\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.token) pm.collectionVariables.set('token', d.token);",
+                  "if (d && d.user) pm.collectionVariables.set('userId', d.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@citycomplaint.com\",\n  \"password\": \"Admin@1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (Citizen)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.token) pm.collectionVariables.set('token', d.token);",
+                  "if (d && d.user) pm.collectionVariables.set('userId', d.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"citizen1@example.com\",\n  \"password\": \"Citizen@1234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Google Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/google", "host": ["{{baseUrl}}"], "path": ["api", "auth", "google"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"PASTE_GOOGLE_ID_TOKEN_HERE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        },
+        {
+          "name": "Update Me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rakib H.\",\n  \"address\": \"12 Lake Road\",\n  \"ward\": \"Ward 6\"\n}" }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/auth/me/password", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me", "password"] },
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Citizen@1234\",\n  \"newPassword\": \"Citizen@5678\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Admin)",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "role", "value": "AGENT", "disabled": true },
+                { "key": "status", "value": "ACTIVE", "disabled": true },
+                { "key": "search", "value": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Agent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.id) { pm.collectionVariables.set('agentId', d.id); pm.collectionVariables.set('userId', d.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/users/agents", "host": ["{{baseUrl}}"], "path": ["api", "users", "agents"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Agent Salma\",\n  \"email\": \"agent3@citycomplaint.com\",\n  \"password\": \"Agent@1234\",\n  \"ward\": \"Ward 7\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Update Role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}/role", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}", "role"] },
+            "body": { "mode": "raw", "raw": "{\n  \"role\": \"AGENT\"\n}" }
+          }
+        },
+        {
+          "name": "Update Status (Ban/Unban)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"BANNED\"\n}" }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories (public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (Array.isArray(d) && d.length) pm.collectionVariables.set('categoryId', d[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] }
+          }
+        },
+        {
+          "name": "Get Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["api", "categories", "{{categoryId}}"] }
+          }
+        },
+        {
+          "name": "Create Category (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.id) pm.collectionVariables.set('categoryId', d.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Parks & Recreation\",\n  \"description\": \"Public parks, playgrounds and green spaces\"\n}" }
+          }
+        },
+        {
+          "name": "Update Category (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["api", "categories", "{{categoryId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated description\",\n  \"isActive\": true\n}" }
+          }
+        },
+        {
+          "name": "Delete Category (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/categories/{{categoryId}}", "host": ["{{baseUrl}}"], "path": ["api", "categories", "{{categoryId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "item": [
+        {
+          "name": "List Services (public)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (Array.isArray(d) && d.length) pm.collectionVariables.set('serviceId', d[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/services", "host": ["{{baseUrl}}"], "path": ["api", "services"] }
+          }
+        },
+        {
+          "name": "Get Service",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/services/{{serviceId}}", "host": ["{{baseUrl}}"], "path": ["api", "services", "{{serviceId}}"] }
+          }
+        },
+        {
+          "name": "Create Service (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.id) pm.collectionVariables.set('serviceId', d.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/services", "host": ["{{baseUrl}}"], "path": ["api", "services"] },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Pet License\",\n  \"description\": \"Register a pet with the municipality\",\n  \"fee\": 15\n}" }
+          }
+        },
+        {
+          "name": "Update Service (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/services/{{serviceId}}", "host": ["{{baseUrl}}"], "path": ["api", "services", "{{serviceId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"fee\": 20,\n  \"isActive\": true\n}" }
+          }
+        },
+        {
+          "name": "Delete Service (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/services/{{serviceId}}", "host": ["{{baseUrl}}"], "path": ["api", "services", "{{serviceId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complaints",
+      "item": [
+        {
+          "name": "Create Complaint (citizen)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.id) pm.collectionVariables.set('complaintId', d.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/complaints", "host": ["{{baseUrl}}"], "path": ["api", "complaints"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Broken street light on Main Rd\",\n  \"description\": \"The light has been off for a week, the street is dark at night.\",\n  \"categoryId\": \"{{categoryId}}\",\n  \"ward\": \"Ward 5\",\n  \"address\": \"Main Rd, corner of 3rd Ave\",\n  \"priority\": \"HIGH\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Complaints (role-scoped)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/complaints?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "complaints"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "PENDING", "disabled": true },
+                { "key": "priority", "value": "HIGH", "disabled": true },
+                { "key": "categoryId", "value": "{{categoryId}}", "disabled": true },
+                { "key": "search", "value": "light", "disabled": true },
+                { "key": "sort", "value": "newest", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Complaint",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/complaints/{{complaintId}}", "host": ["{{baseUrl}}"], "path": ["api", "complaints", "{{complaintId}}"] }
+          }
+        },
+        {
+          "name": "Update Complaint (owner, pending)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/complaints/{{complaintId}}", "host": ["{{baseUrl}}"], "path": ["api", "complaints", "{{complaintId}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"Updated: the light flickers intermittently.\",\n  \"priority\": \"URGENT\"\n}" }
+          }
+        },
+        {
+          "name": "Assign Complaint (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/complaints/{{complaintId}}/assign", "host": ["{{baseUrl}}"], "path": ["api", "complaints", "{{complaintId}}", "assign"] },
+            "body": { "mode": "raw", "raw": "{\n  \"agentId\": \"{{agentId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Change Status (agent/admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/complaints/{{complaintId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "complaints", "{{complaintId}}", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"IN_PROGRESS\",\n  \"note\": \"Technician dispatched to the site.\"\n}" }
+          }
+        },
+        {
+          "name": "Add Update / Note",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/complaints/{{complaintId}}/updates", "host": ["{{baseUrl}}"], "path": ["api", "complaints", "{{complaintId}}", "updates"] },
+            "body": { "mode": "raw", "raw": "{\n  \"note\": \"Parts ordered, ETA 2 days.\"\n}" }
+          }
+        },
+        {
+          "name": "List Updates / Timeline",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/complaints/{{complaintId}}/updates", "host": ["{{baseUrl}}"], "path": ["api", "complaints", "{{complaintId}}", "updates"] }
+          }
+        },
+        {
+          "name": "Delete Complaint",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/complaints/{{complaintId}}", "host": ["{{baseUrl}}"], "path": ["api", "complaints", "{{complaintId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Service Requests",
+      "item": [
+        {
+          "name": "Create Service Request (citizen)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.id) pm.collectionVariables.set('serviceRequestId', d.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/service-requests", "host": ["{{baseUrl}}"], "path": ["api", "service-requests"] },
+            "body": { "mode": "raw", "raw": "{\n  \"serviceId\": \"{{serviceId}}\",\n  \"details\": \"New grocery shop trade license application.\"\n}" }
+          }
+        },
+        {
+          "name": "List Service Requests (role-scoped)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/service-requests?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "service-requests"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "PENDING_PAYMENT", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Service Request",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/service-requests/{{serviceRequestId}}", "host": ["{{baseUrl}}"], "path": ["api", "service-requests", "{{serviceRequestId}}"] }
+          }
+        },
+        {
+          "name": "Assign Service Request (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/service-requests/{{serviceRequestId}}/assign", "host": ["{{baseUrl}}"], "path": ["api", "service-requests", "{{serviceRequestId}}", "assign"] },
+            "body": { "mode": "raw", "raw": "{\n  \"agentId\": \"{{agentId}}\"\n}" }
+          }
+        },
+        {
+          "name": "Change Status (agent/admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/service-requests/{{serviceRequestId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "service-requests", "{{serviceRequestId}}", "status"] },
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"IN_REVIEW\",\n  \"note\": \"Documents received, under review.\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Checkout Service Request (citizen)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.sessionId) pm.collectionVariables.set('sessionId', d.sessionId);",
+                  "if (d && d.payment && d.payment.id) pm.collectionVariables.set('paymentId', d.payment.id);",
+                  "if (d && d.checkoutUrl) console.log('Open to pay: ' + d.checkoutUrl);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/payments/service-requests/{{serviceRequestId}}/checkout", "host": ["{{baseUrl}}"], "path": ["api", "payments", "service-requests", "{{serviceRequestId}}", "checkout"] }
+          }
+        },
+        {
+          "name": "Expedite Complaint (citizen)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.sessionId) pm.collectionVariables.set('sessionId', d.sessionId);",
+                  "if (d && d.payment && d.payment.id) pm.collectionVariables.set('paymentId', d.payment.id);",
+                  "if (d && d.checkoutUrl) console.log('Open to pay: ' + d.checkoutUrl);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/payments/complaints/{{complaintId}}/expedite", "host": ["{{baseUrl}}"], "path": ["api", "payments", "complaints", "{{complaintId}}", "expedite"] }
+          }
+        },
+        {
+          "name": "Confirm Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/payments/confirm", "host": ["{{baseUrl}}"], "path": ["api", "payments", "confirm"] },
+            "body": { "mode": "raw", "raw": "{\n  \"sessionId\": \"{{sessionId}}\"\n}" }
+          }
+        },
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/payments?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "COMPLETED", "disabled": true },
+                { "key": "purpose", "value": "SERVICE_REQUEST", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Payment",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/payments/{{paymentId}}", "host": ["{{baseUrl}}"], "path": ["api", "payments", "{{paymentId}}"] }
+          }
+        },
+        {
+          "name": "Stripe Webhook (reference only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "stripe-signature", "value": "t=...,v1=..." }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/payments/webhook", "host": ["{{baseUrl}}"], "path": ["api", "payments", "webhook"] },
+            "body": { "mode": "raw", "raw": "{}" },
+            "description": "Do not send from Postman. Stripe posts here with a signed raw body. Use `stripe listen --forward-to localhost:5000/api/payments/webhook` in test mode."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Create Review (citizen)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (d && d.id) pm.collectionVariables.set('reviewId', d.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/reviews", "host": ["{{baseUrl}}"], "path": ["api", "reviews"] },
+            "body": { "mode": "raw", "raw": "{\n  \"complaintId\": \"{{complaintId}}\",\n  \"rating\": 5,\n  \"comment\": \"Resolved quickly and professionally.\"\n}" }
+          }
+        },
+        {
+          "name": "Get Review by Complaint (public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/reviews/complaint/{{complaintId}}", "host": ["{{baseUrl}}"], "path": ["api", "reviews", "complaint", "{{complaintId}}"] }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/reviews/{{reviewId}}", "host": ["{{baseUrl}}"], "path": ["api", "reviews", "{{reviewId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var d = pm.response.json().data;",
+                  "if (Array.isArray(d) && d.length) pm.collectionVariables.set('notificationId', d[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "notifications"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "isRead", "value": "false", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark One Read",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notifications/{{notificationId}}/read", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "{{notificationId}}", "read"] }
+          }
+        },
+        {
+          "name": "Mark All Read",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notifications/read-all", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "read-all"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Admin Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/dashboard/admin", "host": ["{{baseUrl}}"], "path": ["api", "dashboard", "admin"] }
+          }
+        },
+        {
+          "name": "Agent Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/dashboard/agent", "host": ["{{baseUrl}}"], "path": ["api", "dashboard", "agent"] }
+          }
+        },
+        {
+          "name": "Citizen Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/dashboard/citizen", "host": ["{{baseUrl}}"], "path": ["api", "dashboard", "citizen"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Meta",
+      "item": [
+        {
+          "name": "Root Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] }
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] }
+          }
+        }
+      ]
+    }
+  ]
+}
