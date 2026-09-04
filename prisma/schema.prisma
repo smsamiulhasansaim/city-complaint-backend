@@ -2,7 +2,11 @@
 // Postgres. Run: `npm run prisma:migrate` then `npm run prisma:seed`.
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" for local dev; the rhel targets are the Vercel/AWS Lambda
+  // runtimes (OpenSSL 1.0.x on AL2, 3.0.x on AL2023) so the query engine
+  // ships with the serverless bundle.
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
