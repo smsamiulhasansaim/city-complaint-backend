@@ -4,12 +4,16 @@ import { authenticate, authorize } from '../middleware/auth';
 import validate from '../middleware/validate';
 import {
   serviceRequestCheckoutSchema,
+  complaintExpediteSchema,
   confirmPaymentSchema,
   listPaymentsSchema,
   paymentIdSchema,
 } from '../validations/payment.validation';
 
 const router = Router();
+
+// Stripe webhook — no auth; body is raw (configured in app.ts). Keep first.
+router.post('/webhook', paymentController.webhook);
 
 // Start a Stripe Checkout Session for a paid service request.
 router.post(
@@ -18,6 +22,15 @@ router.post(
   authorize('CITIZEN'),
   validate(serviceRequestCheckoutSchema),
   paymentController.checkoutServiceRequest
+);
+
+// Start a Stripe Checkout Session to expedite a complaint (fixed fee).
+router.post(
+  '/complaints/:id/expedite',
+  authenticate,
+  authorize('CITIZEN'),
+  validate(complaintExpediteSchema),
+  paymentController.expediteComplaint
 );
 
 // Verify a session and fulfil it (primary confirmation path).

@@ -177,12 +177,36 @@ export const createServiceRequestCheckout = async (
   });
 };
 
+export const createComplaintExpediteCheckout = async (
+  userId: string,
+  complaintId: string
+) => {
+  const complaint = await prisma.complaint.findUnique({ where: { id: complaintId } });
+  if (!complaint) throw new AppError('Complaint not found.', 404);
+  if (complaint.citizenId !== userId) {
+    throw new AppError('You can only expedite your own complaints.', 403);
+  }
+  if (complaint.isExpedited) {
+    throw new AppError('This complaint has already been expedited.', 400);
+  }
+  if (['RESOLVED', 'CLOSED', 'REJECTED'].includes(complaint.status)) {
+    throw new AppError('This complaint can no longer be expedited.', 400);
+  }
+
+  return buildCheckout({
+    userId,
+    amount: env.expediteFee,
+    productName: `Expedite complaint: ${complaint.title}`,
+    purpose: 'COMPLAINT_EXPEDITE',
+    complaintId,
+  });
+};
+
 export const confirmPayment = async (
   userId: string,
   role: AppRole,
   sessionId: string
-) => {
-  const payment = await prisma.payment.findUnique({
+) => {  const payment = await prisma.payment.findUnique({
     where: { transactionId: sessionId },
   });
   if (!payment) throw new AppError('No payment found for this session.', 404);
@@ -248,4 +272,25 @@ export const getPaymentById = async (id: string, role: AppRole, userId: string) 
     throw new AppError('You do not have permission to view this payment.', 403);
   }
   return payment;
+};
+
+/**
+ * Verifies a Stripe webhook signature against the raw request body. Throws if
+ * the secret is unset or the signature is invalid.
+ */
+export const constructWebhookEvent = (
+  rawBody: Buffer,
+  signature: string
+): Stripe.Event => {
+  if (!env.stripeWebhookSecret) {
+    throw new AppError('Stripe webhook secret is not configured.', 500);
+  }
+  return stripe.webhooks.constructEvent(rawBody, signature, env.stripeWebhookSecret);
+};
+
+/** Fulfils checkout.session.completed events (redundant, reliable backup path). */
+export const handleWebhookEvent = async (event: Stripe.Event): Promise<void> => {
+  if (event.type === 'checkout.session.completed') {
+    await fulfillPaidSession(event.data.object as Stripe.Checkout.Session);
+  }
 };

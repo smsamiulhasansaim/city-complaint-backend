@@ -7,6 +7,10 @@ export const serviceRequestCheckoutSchema = z.object({
   params: z.object({ id: z.string().uuid('Invalid service request id') }),
 });
 
+export const complaintExpediteSchema = z.object({
+  params: z.object({ id: z.string().uuid('Invalid complaint id') }),
+});
+
 export const confirmPaymentSchema = z.object({
   body: z.object({ sessionId: z.string().min(3, 'A Stripe session id is required') }),
 });

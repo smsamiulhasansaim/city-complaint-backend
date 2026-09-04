@@ -14,6 +14,14 @@ export const checkoutServiceRequest = asyncHandler(
   }
 );
 
+export const expediteComplaint = asyncHandler(async (req: Request, res: Response) => {
+  const result = await paymentService.createComplaintExpediteCheckout(
+    req.user!.id,
+    req.params.id
+  );
+  sendSuccess(res, 201, 'Expedite checkout session created', result);
+});
+
 export const confirmPayment = asyncHandler(async (req: Request, res: Response) => {
   const result = await paymentService.confirmPayment(
     req.user!.id,
@@ -42,4 +50,28 @@ export const getPayment = asyncHandler(async (req: Request, res: Response) => {
     req.user!.id
   );
   sendSuccess(res, 200, 'Payment fetched', payment);
+});
+
+/**
+ * Stripe webhook. Mounted with a raw body parser (see app.ts) so the signature
+ * can be verified. Returns Stripe's expected 200 ack rather than our envelope.
+ */
+export const webhook = asyncHandler(async (req: Request, res: Response) => {
+  const signature = req.headers['stripe-signature'] as string | undefined;
+  if (!signature) {
+    res.status(400).json({ success: false, message: 'Missing Stripe signature', errors: [] });
+    return;
+  }
+
+  let event;
+  try {
+    event = paymentService.constructWebhookEvent(req.body as Buffer, signature);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Webhook verification failed';
+    res.status(400).json({ success: false, message, errors: [] });
+    return;
+  }
+
+  await paymentService.handleWebhookEvent(event);
+  res.status(200).json({ received: true });
 });
