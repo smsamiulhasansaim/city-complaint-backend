@@ -6,6 +6,7 @@ import env from './config/env';
 import apiRoutes from './routes';
 import { notFound, errorHandler } from './middleware/errorHandler';
 import { sendSuccess } from './utils/sendResponse';
+import { setupSwagger } from './config/swagger';
 
 const app: Application = express();
 
@@ -40,6 +41,9 @@ app.get('/health', (_req, res) =>
     uptime: process.uptime(),
   })
 );
+
+// API documentation (Swagger UI at /api-docs, raw spec at /api-docs.json).
+setupSwagger(app);
 
 app.use('/api', apiRoutes);
 
