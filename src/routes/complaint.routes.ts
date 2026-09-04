@@ -7,6 +7,9 @@ import {
   listComplaintsSchema,
   complaintIdSchema,
   updateComplaintSchema,
+  assignComplaintSchema,
+  complaintStatusSchema,
+  addComplaintUpdateSchema,
 } from '../validations/complaint.validation';
 
 const router = Router();
@@ -29,5 +32,27 @@ router.patch(
   complaintController.updateComplaint
 );
 router.delete('/:id', validate(complaintIdSchema), complaintController.deleteComplaint);
+
+// Workflow: assignment (admin) and status transitions (assigned agent or admin).
+router.patch(
+  '/:id/assign',
+  authorize('ADMIN'),
+  validate(assignComplaintSchema),
+  complaintController.assignComplaint
+);
+router.patch(
+  '/:id/status',
+  authorize('AGENT', 'ADMIN'),
+  validate(complaintStatusSchema),
+  complaintController.changeStatus
+);
+
+// Timeline / conversation.
+router.post(
+  '/:id/updates',
+  validate(addComplaintUpdateSchema),
+  complaintController.addUpdate
+);
+router.get('/:id/updates', validate(complaintIdSchema), complaintController.listUpdates);
 
 export default router;

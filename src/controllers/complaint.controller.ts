@@ -59,3 +59,42 @@ export const deleteComplaint = asyncHandler(async (req: Request, res: Response) 
   );
   sendSuccess(res, 200, 'Complaint deleted', result);
 });
+
+export const assignComplaint = asyncHandler(async (req: Request, res: Response) => {
+  const complaint = await complaintService.assignComplaint(
+    req.user!.id,
+    req.params.id,
+    req.body.agentId
+  );
+  sendSuccess(res, 200, 'Complaint assigned', complaint);
+});
+
+export const changeStatus = asyncHandler(async (req: Request, res: Response) => {
+  const complaint = await complaintService.changeComplaintStatus(
+    req.user!.id,
+    req.user!.role,
+    req.params.id,
+    req.body.status,
+    req.body.note
+  );
+  sendSuccess(res, 200, 'Complaint status updated', complaint);
+});
+
+export const addUpdate = asyncHandler(async (req: Request, res: Response) => {
+  const update = await complaintService.addComplaintUpdate(
+    req.user!.id,
+    req.user!.role,
+    req.params.id,
+    req.body.note
+  );
+  sendSuccess(res, 201, 'Update added', update);
+});
+
+export const listUpdates = asyncHandler(async (req: Request, res: Response) => {
+  const updates = await complaintService.listComplaintUpdates(
+    req.params.id,
+    req.user!.role,
+    req.user!.id
+  );
+  sendSuccess(res, 200, 'Complaint timeline fetched', updates);
+});

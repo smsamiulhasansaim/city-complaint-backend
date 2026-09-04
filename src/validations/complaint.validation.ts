@@ -41,6 +41,24 @@ export const complaintIdSchema = z.object({
   params: z.object({ id: z.string().uuid('Invalid complaint id') }),
 });
 
+export const assignComplaintSchema = z.object({
+  params: z.object({ id: z.string().uuid('Invalid complaint id') }),
+  body: z.object({ agentId: z.string().uuid('A valid agent id is required') }),
+});
+
+export const complaintStatusSchema = z.object({
+  params: z.object({ id: z.string().uuid('Invalid complaint id') }),
+  body: z.object({
+    status: statusEnum,
+    note: z.string().max(1000).optional(),
+  }),
+});
+
+export const addComplaintUpdateSchema = z.object({
+  params: z.object({ id: z.string().uuid('Invalid complaint id') }),
+  body: z.object({ note: z.string().min(1, 'A note is required').max(1000) }),
+});
+
 export const updateComplaintSchema = z.object({
   params: z.object({ id: z.string().uuid('Invalid complaint id') }),
   body: z
