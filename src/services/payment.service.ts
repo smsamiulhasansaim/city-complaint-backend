@@ -12,7 +12,7 @@ import { publicUserSelect } from './complaint.service';
 const redirectBase =
   env.clientUrl && env.clientUrl.startsWith('http')
     ? env.clientUrl
-    : 'http://localhost:3000';
+    : '';
 
 const paymentInclude = {
   payer: { select: publicUserSelect },
