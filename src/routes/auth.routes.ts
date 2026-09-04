@@ -5,6 +5,7 @@ import validate from '../middleware/validate';
 import {
   registerSchema,
   loginSchema,
+  googleSchema,
   updateMeSchema,
   changePasswordSchema,
 } from '../validations/auth.validation';
@@ -13,6 +14,7 @@ const router = Router();
 
 router.post('/register', validate(registerSchema), authController.register);
 router.post('/login', validate(loginSchema), authController.login);
+router.post('/google', validate(googleSchema), authController.googleLogin);
 
 router.get('/me', authenticate, authController.getMe);
 router.patch('/me', authenticate, validate(updateMeSchema), authController.updateMe);

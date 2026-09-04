@@ -14,6 +14,11 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   sendSuccess(res, 200, 'Login successful', result);
 });
 
+export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
+  const result = await authService.googleLogin(req.body.idToken);
+  sendSuccess(res, 200, 'Google login successful', result);
+});
+
 export const getMe = asyncHandler(async (req: Request, res: Response) => {
   const user = await authService.getMe(req.user!.id);
   sendSuccess(res, 200, 'Current user fetched', user);

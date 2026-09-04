@@ -1,8 +1,12 @@
 import bcrypt from 'bcryptjs';
+import { OAuth2Client } from 'google-auth-library';
 import { Prisma } from '@prisma/client';
 import prisma from '../config/db';
+import env from '../config/env';
 import AppError from '../utils/AppError';
 import { signToken } from '../utils/jwt';
+
+const googleClient = new OAuth2Client(env.googleClientId);
 
 /** Columns safe to return to clients — never includes the password hash. */
 export const userSelect = {
@@ -81,6 +85,66 @@ export const login = async (email: string, password: string) => {
   const token = signToken({ id: user.id, role: user.role });
   const { password: _pw, ...safe } = user;
   return { user: safe, token };
+};
+
+/**
+ * Google (GCP) social login. Verifies the ID token against our OAuth client,
+ * then links it to an existing account by email or provisions a new CITIZEN.
+ * We always mint our own JWT so downstream RBAC is provider-agnostic.
+ */
+export const googleLogin = async (idToken: string) => {
+  if (!env.googleClientId) {
+    throw new AppError('Google login is not configured on the server.', 500);
+  }
+
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: env.googleClientId,
+    });
+    payload = ticket.getPayload();
+  } catch {
+    throw new AppError('Invalid or expired Google token.', 401);
+  }
+
+  if (!payload?.email) {
+    throw new AppError('Google token did not contain a verified email.', 401);
+  }
+
+  const { email, sub: googleId, name, picture } = payload;
+  const existing = await prisma.user.findUnique({ where: { email } });
+
+  let user;
+  if (existing) {
+    if (existing.status === 'BANNED') {
+      throw new AppError('Your account has been banned. Contact support.', 403);
+    }
+    // Link Google to the existing account without downgrading a local password.
+    user = await prisma.user.update({
+      where: { email },
+      data: {
+        googleId: existing.googleId ?? googleId,
+        avatar: existing.avatar ?? picture ?? null,
+      },
+      select: userSelect,
+    });
+  } else {
+    user = await prisma.user.create({
+      data: {
+        name: name || email.split('@')[0],
+        email,
+        googleId,
+        avatar: picture,
+        role: 'CITIZEN',
+        authProvider: 'GOOGLE',
+      },
+      select: userSelect,
+    });
+  }
+
+  const token = signToken({ id: user.id, role: user.role });
+  return { user, token };
 };
 
 export const getMe = async (userId: string) => {
