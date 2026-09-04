@@ -75,13 +75,13 @@ src/
   controllers/        # <feature>.controller.ts
   services/           # <feature>.service.ts (logic, Prisma, $transaction, cache)
   validations/        # <feature>.validation.ts (Zod schemas)
-prisma/               # schema.prisma, seed.ts
+prisma/               # schema/ (per-domain .prisma files), seed.ts
 vercel.json  .env.example  CityComplaint.postman_collection.json
 ```
 
 ## Data model
 
-Core entities and relationships (see [`prisma/schema.prisma`](./prisma/schema.prisma)):
+Core entities and relationships (see the [`prisma/schema/`](./prisma/schema) folder — split per domain):
 
 - **User** — `role` (CITIZEN/AGENT/ADMIN), `status` (ACTIVE/BANNED), `authProvider` (LOCAL/GOOGLE). Owns complaints, service requests, payments, reviews, notifications; agents own assigned work.
 - **Category** — complaint categories (unique name, soft-disable via `isActive`).
