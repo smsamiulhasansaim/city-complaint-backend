@@ -1,0 +1,22 @@
+// City Complaint & Service Platform — Prisma schema (multi-file).
+// Postgres. Run: `npm run prisma:migrate` then `npm run prisma:seed`.
+//
+// Multi-file schema via the `prismaSchemaFolder` preview feature: models are
+// split across this `prisma/schema/` folder by domain and Prisma merges every
+// `.prisma` file here into one schema. This file holds only the generator and
+// datasource; see enums.prisma, user.prisma, complaint.prisma, service.prisma,
+// payment.prisma and notification.prisma for the rest.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+  // "native" for local dev; the rhel targets are the Vercel/AWS Lambda
+  // runtimes (OpenSSL 1.0.x on AL2, 3.0.x on AL2023) so the query engine
+  // ships with the serverless bundle.
+  binaryTargets   = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

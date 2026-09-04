@@ -1,0 +1,30 @@
+// Payments — Stripe-backed. Each payment is linked to exactly one of a service
+// request or a complaint (expedite); enforced in application logic.
+
+model Payment {
+  id            String          @id @default(uuid())
+  transactionId String          @unique // Stripe checkout session id
+  amount        Decimal         @db.Decimal(10, 2)
+  currency      String          @default("usd")
+  method        String          @default("card")
+  provider      PaymentProvider @default(STRIPE)
+  status        PaymentStatus   @default(PENDING)
+  purpose       PaymentPurpose
+  paidAt        DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  payerId String
+  payer   User   @relation(fields: [payerId], references: [id])
+
+  // Exactly one of the two below is set (enforced in application logic)
+  serviceRequestId String?         @unique
+  serviceRequest   ServiceRequest? @relation(fields: [serviceRequestId], references: [id])
+
+  complaintId String?    @unique
+  complaint   Complaint? @relation(fields: [complaintId], references: [id])
+
+  @@index([payerId])
+  @@index([status])
+  @@map("payments")
+}

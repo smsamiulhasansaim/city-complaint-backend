@@ -1,0 +1,84 @@
+// Complaint domain — categories, complaints, their status timeline and reviews.
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  complaints Complaint[]
+
+  @@map("categories")
+}
+
+model Complaint {
+  id          String          @id @default(uuid())
+  title       String
+  description String
+  ward        String?
+  address     String?
+  latitude    Float?
+  longitude   Float?
+  images      String[]
+  priority    Priority        @default(MEDIUM)
+  status      ComplaintStatus @default(PENDING)
+  isExpedited Boolean         @default(false)
+  resolvedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  citizenId String
+  citizen   User   @relation("CitizenComplaints", fields: [citizenId], references: [id])
+
+  assignedAgentId String?
+  assignedAgent   User?   @relation("AgentComplaints", fields: [assignedAgentId], references: [id])
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  updates ComplaintUpdate[]
+  review  Review?
+  payment Payment?
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([citizenId])
+  @@index([assignedAgentId])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("complaints")
+}
+
+model ComplaintUpdate {
+  id         String           @id @default(uuid())
+  fromStatus ComplaintStatus?
+  toStatus   ComplaintStatus?
+  note       String
+  createdAt  DateTime         @default(now())
+
+  complaintId String
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation("UpdateAuthor", fields: [authorId], references: [id])
+
+  @@index([complaintId])
+  @@map("complaint_updates")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int // 1..5
+  comment   String
+  createdAt DateTime @default(now())
+
+  citizenId String
+  citizen   User   @relation(fields: [citizenId], references: [id])
+
+  complaintId String    @unique
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}

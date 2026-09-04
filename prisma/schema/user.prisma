@@ -1,0 +1,31 @@
+// Users — citizens, agents and admins. Role & status drive RBAC.
+
+model User {
+  id           String       @id @default(uuid())
+  name         String
+  email        String       @unique
+  password     String? // null for Google-only accounts
+  googleId     String?      @unique
+  authProvider AuthProvider @default(LOCAL)
+  phone        String?
+  address      String?
+  ward         String?
+  avatar       String?
+  role         Role         @default(CITIZEN)
+  status       UserStatus   @default(ACTIVE)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  complaints              Complaint[]       @relation("CitizenComplaints")
+  assignedComplaints      Complaint[]       @relation("AgentComplaints")
+  complaintUpdates        ComplaintUpdate[] @relation("UpdateAuthor")
+  serviceRequests         ServiceRequest[]  @relation("CitizenServiceRequests")
+  assignedServiceRequests ServiceRequest[]  @relation("AgentServiceRequests")
+  payments                Payment[]
+  reviews                 Review[]
+  notifications           Notification[]
+
+  @@index([role])
+  @@index([status])
+  @@map("users")
+}

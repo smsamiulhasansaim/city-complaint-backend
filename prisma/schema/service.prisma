@@ -1,0 +1,39 @@
+// Paid municipal services and the requests citizens raise against them.
+
+model Service {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  fee         Decimal  @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requests ServiceRequest[]
+
+  @@map("services")
+}
+
+model ServiceRequest {
+  id        String               @id @default(uuid())
+  status    ServiceRequestStatus @default(PENDING_PAYMENT)
+  details   String?
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id])
+
+  citizenId String
+  citizen   User   @relation("CitizenServiceRequests", fields: [citizenId], references: [id])
+
+  assignedAgentId String?
+  assignedAgent   User?   @relation("AgentServiceRequests", fields: [assignedAgentId], references: [id])
+
+  payment Payment?
+
+  @@index([status])
+  @@index([citizenId])
+  @@index([serviceId])
+  @@map("service_requests")
+}

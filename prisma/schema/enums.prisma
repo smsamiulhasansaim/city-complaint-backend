@@ -1,0 +1,67 @@
+// Enums shared across the schema.
+
+enum Role {
+  CITIZEN
+  AGENT
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}
+
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+}
+
+enum ComplaintStatus {
+  PENDING
+  ASSIGNED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  REJECTED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ServiceRequestStatus {
+  PENDING_PAYMENT
+  PAID
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum PaymentProvider {
+  STRIPE
+  SSLCOMMERZ
+  BKASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentPurpose {
+  SERVICE_REQUEST
+  COMPLAINT_EXPEDITE
+}
+
+enum NotificationType {
+  COMPLAINT
+  SERVICE
+  PAYMENT
+  SYSTEM
+}
