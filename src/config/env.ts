@@ -5,12 +5,11 @@ const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   isProd: (process.env.NODE_ENV || 'development') === 'production',
   port: Number(process.env.PORT) || 5000,
-  // Comma-separated allowed origins for CORS; '*' allows any.
   clientUrl: process.env.CLIENT_URL || '*',
 
   databaseUrl: process.env.DATABASE_URL || '',
 
-  jwtSecret: process.env.JWT_SECRET || 'dev_secret_change_me',
+  jwtSecret: process.env.JWT_SECRET || '',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
