@@ -1,14 +1,11 @@
 import 'dotenv/config';
 
-/**
- * Central, typed access to environment variables with sensible defaults so the
- * app can boot for local dev / offline typecheck even when secrets are absent.
- * Real values are required at runtime for DB, auth, Stripe and Google.
- */
+
 const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   isProd: (process.env.NODE_ENV || 'development') === 'production',
   port: Number(process.env.PORT) || 5000,
+  // Comma-separated allowed origins for CORS; '*' allows any.
   clientUrl: process.env.CLIENT_URL || '*',
 
   databaseUrl: process.env.DATABASE_URL || '',

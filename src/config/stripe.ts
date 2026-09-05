@@ -6,7 +6,7 @@ import env from './env';
  * that importing this module never crashes app startup; only the actual payment
  * endpoints will fail (with a clear Stripe error) until a real test key is set.
  */
-const stripe = new Stripe(env.stripeSecretKey || 'sk_test_placeholder', {
+const stripe = new Stripe(env.stripeSecretKey || '', {
   apiVersion: '2024-06-20' as Stripe.LatestApiVersion,
 });
 

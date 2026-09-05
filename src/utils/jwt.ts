@@ -14,4 +14,4 @@ export const signToken = (payload: JwtPayload): string =>
   });
 
 export const verifyToken = (token: string): JwtPayload =>
-  jwt.verify(token, env.jwtSecret) as JwtPayload;
+  jwt.verify(token, env.jwtSecret) as unknown as JwtPayload;
