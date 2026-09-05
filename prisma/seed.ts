@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import { PrismaClient, Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { cacheDel, CacheKeys } from '../src/utils/cache';
+import redis from '../src/config/redis';
 
 /**
  * Idempotent seed. Users/categories/services are upserted on every run.
@@ -16,6 +18,14 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@1234';
 const EXPEDITE_FEE = Number(process.env.EXPEDITE_FEE || 20);
 
 const hash = (plain: string) => bcrypt.hash(plain, 10);
+
+/**
+ * Drop the cache-aside keys so the public /categories, /services and admin
+ * dashboard reflect the freshly seeded rows immediately (no-op without Redis).
+ */
+async function clearReadCaches() {
+  await cacheDel(CacheKeys.categories, CacheKeys.services, CacheKeys.adminDashboard);
+}
 
 async function upsertUser(opts: {
   name: string;
@@ -137,6 +147,7 @@ async function main() {
   if (existingComplaints > 0) {
     // eslint-disable-next-line no-console
     console.log('↩︎  Sample content already present — skipping content seed.');
+    await clearReadCaches();
     return;
   }
 
@@ -381,17 +392,30 @@ async function main() {
     ],
   });
 
+  await clearReadCaches();
+
   // eslint-disable-next-line no-console
   console.log('✅ Seed complete.');
 }
 
+// Close the optional Redis connection so the process can exit (it stays open
+// with a retry strategy otherwise, hanging the seed on CI / Vercel builds).
+async function shutdown() {
+  await prisma.$disconnect();
+  if (redis) {
+    try {
+      await redis.quit();
+    } catch {
+      /* best-effort */
+    }
+  }
+}
+
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
+  .then(shutdown)
   .catch(async (e) => {
     // eslint-disable-next-line no-console
     console.error(e);
-    await prisma.$disconnect();
+    await shutdown();
     process.exit(1);
   });
