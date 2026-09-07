@@ -6,27 +6,32 @@ Built with TypeScript, Express, Prisma (PostgreSQL), JWT + Google auth, real Str
 
 > **Assignment:** Programming Hero B7A6 — *City Complaint & Service Platform* (backend only).
 
-- **Live API:** `<your-vercel-url>` (set after deploy)
-- **Swagger UI:** `<your-vercel-url>/api-docs` · **Raw spec:** `/api-docs.json`
+- **Live API:** `https://city-complaint-backend.vercel.app` (set after deploy)
+- **Swagger UI:** `https://city-complaint-backend.vercel.app/api-docs` · **Raw spec:** `/api-docs.json`
+- **Swagger UI:** `/api-docs` · **Raw spec:** `/api-docs.json`
 - **Postman:** [`CityComplaint.postman_collection.json`](./CityComplaint.postman_collection.json) (repo root)
 
 ---
 
 ## Table of contents
-- [Features](#features)
-- [Tech stack](#tech-stack)
-- [Architecture](#architecture)
-- [Data model](#data-model)
-- [Roles & permissions](#roles--permissions)
-- [Getting started](#getting-started)
-- [Environment variables](#environment-variables)
-- [npm scripts](#npm-scripts)
-- [API overview](#api-overview)
-- [Response format](#response-format)
-- [Payments (Stripe)](#payments-stripe)
-- [Caching (Redis)](#caching-redis)
-- [Deployment (Vercel)](#deployment-vercel)
-- [Demo credentials](#demo-credentials)
+- [City Complaint \& Service Platform — Backend API](#city-complaint--service-platform--backend-api)
+  - [Table of contents](#table-of-contents)
+  - [Features](#features)
+  - [Tech stack](#tech-stack)
+  - [Architecture](#architecture)
+  - [Data model](#data-model)
+  - [Roles \& permissions](#roles--permissions)
+  - [Getting started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Setup](#setup)
+  - [Environment variables](#environment-variables)
+  - [npm scripts](#npm-scripts)
+  - [API overview](#api-overview)
+  - [Response format](#response-format)
+  - [Payments (Stripe)](#payments-stripe)
+  - [Caching (Redis)](#caching-redis)
+  - [Deployment (Vercel)](#deployment-vercel)
+  - [Demo credentials](#demo-credentials)
 
 ---
 
