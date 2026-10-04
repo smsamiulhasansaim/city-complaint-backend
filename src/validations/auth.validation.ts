@@ -21,7 +21,8 @@ export const loginSchema = z.object({
 
 export const googleSchema = z.object({
   body: z.object({
-    idToken: z.string().min(10, 'A Google idToken is required'),
+    code: z.string().min(10, 'A Google authorization code is required'),
+    redirectUri: z.string().optional(),
   }),
 });
 

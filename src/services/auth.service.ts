@@ -92,20 +92,26 @@ export const login = async (email: string, password: string) => {
  * then links it to an existing account by email or provisions a new CITIZEN.
  * We always mint our own JWT so downstream RBAC is provider-agnostic.
  */
-export const googleLogin = async (idToken: string) => {
+export const googleLogin = async (input: { code: string; redirectUri?: string }) => {
   if (!env.googleClientId) {
     throw new AppError('Google login is not configured on the server.', 500);
   }
 
+  const { code, redirectUri = 'postmessage' } = input;
+
   let payload;
   try {
+    const { tokens } = await googleClient.getToken({ code, redirect_uri: redirectUri });
+    if (!tokens.id_token) {
+      throw new Error('No id_token in Google token response');
+    }
     const ticket = await googleClient.verifyIdToken({
-      idToken,
+      idToken: tokens.id_token,
       audience: env.googleClientId,
     });
     payload = ticket.getPayload();
   } catch {
-    throw new AppError('Invalid or expired Google token.', 401);
+    throw new AppError('Invalid or expired Google code.', 401);
   }
 
   if (!payload?.email) {
@@ -120,7 +126,6 @@ export const googleLogin = async (idToken: string) => {
     if (existing.status === 'BANNED') {
       throw new AppError('Your account has been banned. Contact support.', 403);
     }
-    // Link Google to the existing account without downgrading a local password.
     user = await prisma.user.update({
       where: { email },
       data: {
