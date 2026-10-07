@@ -6,8 +6,10 @@ import env from '../config/env';
 import AppError from '../utils/AppError';
 import { signToken } from '../utils/jwt';
 
-const googleClient = new OAuth2Client(env.googleClientId);
-
+const googleClient = new OAuth2Client({
+  clientId: env.googleClientId,
+  clientSecret: env.googleClientSecret,
+});
 /** Columns safe to return to clients — never includes the password hash. */
 export const userSelect = {
   id: true,
